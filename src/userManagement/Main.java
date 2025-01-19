@@ -1,8 +1,12 @@
 package userManagement;
+
 import userManagement.model.User;
 import userManagement.service.UserManager;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
+import java.util.UUID;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
@@ -20,8 +24,10 @@ public class Main {
                 case 4 -> deleteUser();
                 case 5 -> displayUsers();
                 case 6 -> {
-                    System.out.println("Goodbye!");
-                    return;
+                    if (confirmExit()) {
+                        System.out.println("Goodbye!");
+                        return;
+                    }
                 }
                 default -> System.out.println("Invalid choice. Please try again.");
             }
@@ -41,12 +47,23 @@ public class Main {
     private static void createUser() {
         System.out.print("Enter name: ");
         String name = scanner.nextLine();
+
         System.out.print("Enter email: ");
         String email = scanner.nextLine();
 
-        User user = userManager.createUser(name, email);
-        System.out.println("User created successfully!");
-        System.out.println("UUID: " + user.getUuid());
+        // Validate email format (simple regex example)
+        if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            System.out.println("Invalid email format. Please try again.");
+            return;
+        }
+
+        try {
+            User user = userManager.addNewUser(name, email);
+            System.out.println("User created successfully!");
+            System.out.println("UUID: " + user.getUuid());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error creating user: " + e.getMessage());
+        }
     }
 
     private static void searchUser() {
@@ -82,8 +99,14 @@ public class Main {
             default -> null;
         };
 
-        if (userManager.updateUser(uuid, name, email, isDeleted)) {
-            System.out.println("User updated successfully!");
+        try {
+            if (userManager.updateUser(uuid, name, email, isDeleted)) {
+                System.out.println("User updated successfully!");
+            } else {
+                System.out.println("Failed to update user.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error updating user: " + e.getMessage());
         }
     }
 
@@ -150,7 +173,14 @@ public class Main {
         }
     }
 
+    private static boolean confirmExit() {
+        System.out.print("Are you sure you want to exit? (yes/no): ");
+        String input = scanner.nextLine().toLowerCase();
+        return input.equals("yes");
+    }
+
     private static String formatTableHeader() {
         return "| ID    | UUID                                 | Name                 | Email                          |";
     }
+
 }

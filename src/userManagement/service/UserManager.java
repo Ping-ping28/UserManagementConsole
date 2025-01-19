@@ -1,32 +1,35 @@
 package userManagement.service;
-import userManagement.model.User;
 
+import userManagement.model.User;
 import userManagement.tele.telegramNoti;
 
 import java.util.List;
-import java.util.Scanner;
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.ArrayList;
 
-
-
- public class UserManager {
+public class UserManager {
     private List<User> users;
     private int currentId;
+    private telegramNoti telegramNotifier;
 
     public UserManager() {
         this.users = new ArrayList<>();
         this.currentId = 1;
+        this.telegramNotifier = new telegramNoti(); // Initialize the notifier
     }
 
-    public User createUser(String name, String email) {
+    public User addNewUser(String name, String email) {
         User user = new User.Builder()
-                .setId(currentId++)
-                .setName(name)
-                .setEmail(email)
-                .build();
+                .setId(currentId++) // Use currentId for unique ID
+                .setName(name) // Set name
+                .setEmail(email) // Set email
+                .build(); // Build the user with UUID generated in the builder
         users.add(user);
-        sendTelegramNotification("New user created: " + name);
-        return user;
+
+        // Send notification
+        telegramNotifier.sendNotification("New user created: Name = " + name + ", Email = " + email);
+        return user; // Return the created user
     }
 
     public Optional<User> findByUUID(UUID uuid) {
@@ -65,23 +68,4 @@ import java.util.*;
                 .count();
         return (int) Math.ceil((double) activeUserCount / pageSize);
     }
-
-    private void sendTelegramNotification(String message) {
-        // Implement Telegram notification here
-        System.out.println("Telegram notification: " + message);
-    }
-     telegramNoti telegramNotifier = new telegramNoti();
-
-     public User addNewUser(String name,String email) {
-         User user = new User.Builder()
-                 .setId(currentId++)
-                 .setUuid(UUID.randomUUID())
-                 .setName(name)
-                 .setEmail(email)
-                 .build();
-         users.add(user);
-         telegramNotifier.sendNotification("New user created: Name = " + name + ", Email = " + email);
-
-     }
-
 }
