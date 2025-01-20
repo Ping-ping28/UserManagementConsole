@@ -4,8 +4,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class User {
-    private final int id;
-    private final UUID uuid;
+    private  int id;
+    private  UUID uuid;
     private String name;
     private String email;
     private boolean isDeleted;
@@ -17,7 +17,9 @@ public class User {
         this.email = builder.email;
         this.isDeleted = builder.isDeleted;
     }
+    public User(){
 
+    }
     // Getters
     public int getId() {
         return id;
